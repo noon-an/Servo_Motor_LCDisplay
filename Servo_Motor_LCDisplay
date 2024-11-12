@@ -1,0 +1,62 @@
+#include <Servo.h>
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+ 
+ Servo Servo1;  // create servo object to control a servo
+ int potPin = A0;  // analog pin used to connect the potentiometer
+ int servoPin = 3; // define a digital pin (with PWM) for servo. Can use only pin 3, 5, 6,9, 10, 11
+ int VCC2 = 8;// define extra VCC for potentiometer
+ int angle;    // variable to read the value from the analog pin
+ 
+
+ 
+ // Set the LCD address to 0x27 for a 16 chars and 2 line display
+ LiquidCrystal_I2C lcd(0x27, 16, 2);
+ int VCC3 = 4;// define extra VCC for LCD
+ int degPos;// degree symbol position
+ 
+ void setup() {
+   //
+   Serial.begin(9600);          //  setup serial
+   Servo1.attach(servoPin);  // attaches the servo on pin 3 to the servo object
+ 
+   pinMode(VCC2, OUTPUT); // set pin 8 as output
+   digitalWrite(VCC2, HIGH);// set pin 8 HIGH so it acts as 5V pin
+ 
+   // lines bellow are for LCD
+   pinMode(VCC3, OUTPUT);// set pin 4 as output
+   digitalWrite(VCC3, HIGH);// set pin 4 HIGH so it acts as 5V pin  
+   lcd.init();  
+   lcd.backlight();    
+ }
+ 
+ void loop() {
+   
+   int reading = analogRead(potPin);            // reads the value of the potentiometer (value between 0 and 1023)
+   int angle = map(reading, 0, 1023, 0, 180);     // scale it to use it with the servo (value between 0 and 180)
+   Servo1.write(angle);                  // sets the servo position according to the scaled value
+   Serial.print(angle);
+   Serial.println();
+ 
+   lcd.clear();
+   lcd.print("Servo");
+   lcd.setCursor (0,6); // go to start of 2nd line
+   lcd.print("Angle:");  
+   lcd.setCursor (7,1); // go to 7 char of of 2nd line
+   lcd.print(angle);// print angle 
+ 
+   if(angle >99)
+   {
+     degPos =10;
+   }else if(angle >9)
+   {
+     degPos =9;
+   }else
+   {
+     degPos =8;
+   }
+   lcd.setCursor (degPos,1); // go to 11 char of of 2nd line  
+   lcd.print((char)223);// degree symbol
+     
+   delay(500);                           // waits for the servo to get there
+ }
